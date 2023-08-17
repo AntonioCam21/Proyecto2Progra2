@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Sistema de Registro y Control de Usuarios</title>
+    <style>
+        
+        body {
+            background-image: url('foto3.JPG');
+            background-size: 100% 100%;  
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            color: rgb(21, 54, 245);
+        }
+
+        
+        .submenu {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+<div id="loginForm">
+    <h2>Iniciar Sesión</h2>
+    <form id="login" method="post">
+        <label for="usuario" style="color: rgb(62, 22, 206);">Usuario:</label><br>
+        <input type="text" id="usuario" name="usuario" required><br><br>
+        <label for="contrasena" style="color: rgb(46, 0, 252);">Contraseña:</label><br>
+        <input type="password" id="contrasena" name="contrasena" required><br><br>
+        <input type="button" value="Iniciar Sesión" onclick="login()">
+    </form>
+</div>
+
+<div id="submenu" class="submenu">
+    <ul>
+        <li><button onclick="agregar()" style="color: rgb(255, 19, 19);">Agregar</button></li>
+        <li><button onclick="borrar()" style="color: rgb(255, 0, 0);">Borrar</button></li>
+        <li><button onclick="modificar()" style="color: rgb(255, 0, 0);">Modificar</button></li>
+        <li><button onclick="consultar()" style="color: rgb(255, 12, 12);">Consultar</button></li>
+        <li><button onclick="catalogo()" style="color: rgb(255, 0, 0);">Catálogo</button></li>
+        <li><button onclick="cerrarSesion()" style="color: rgb(255, 72, 0);">Cerrar Sesión</button></li>
+    </ul>
+</div>
+
+<div id="usuarios">
+    
+</div>
+
+<script>
+    var usuariosRegistrados = {};
+
+    var usuarioActual = null;
+
+    function login() {
+        var usuario = document.getElementById('usuario').value;
+        var contrasena = document.getElementById('contrasena').value;
+        
+        if (!usuariosRegistrados.hasOwnProperty(usuario)) {
+            usuariosRegistrados[usuario] = { contrasena: contrasena, correos: [] };
+            usuarioActual = usuario;
+            showSubmenu();
+        } else if (usuariosRegistrados[usuario].contrasena === contrasena) {
+            usuarioActual = usuario;
+            showSubmenu();
+        } else {
+            alert("Credenciales incorrectas. Intente nuevamente.asegurese de buscar apuntes de contraseñas");
+        }
+    }
+
+    function showSubmenu() {
+        var submenu = document.getElementById('submenu');
+        var loginForm = document.getElementById('loginForm');
+        
+        loginForm.style.display = 'none';
+        submenu.style.display = 'block';
+    }
+
+    function agregar() {
+        if (usuarioActual !== null) {
+            var nuevoUsuario = prompt("Ingrese el nombre del nuevo usuario que navegara la galaxia:");
+            var nuevoCorreo = prompt("Ingrese el correo electrónico del nuevo usuario para sellar el registro:");
+            
+            if (!usuariosRegistrados.hasOwnProperty(nuevoUsuario)) {
+                usuariosRegistrados[nuevoUsuario] = { contrasena: '', correos: [nuevoCorreo] };
+                mostrarUsuarios(); 
+            } else {
+                usuariosRegistrados[nuevoUsuario].correos.push(nuevoCorreo);
+                mostrarUsuarios(); 
+            }
+        }
+    }
+
+    function borrar() {
+        if (usuarioActual !== null) {
+            var usuarioABorrar = prompt("Ingrese el usuario al que desea borrar de esta galaxia:");
+            if (usuariosRegistrados.hasOwnProperty(usuarioABorrar)) {
+                delete usuariosRegistrados[usuarioABorrar];
+                mostrarUsuarios();
+            } else {
+                alert("Lo sentimos el usuario no existe.");
+            }
+        }
+    }
+
+    function modificar() {
+        if (usuarioActual !== null) {
+            var usuarioAModificar = prompt("Ingrese el usuario estelar al que desea modificar:");
+            if (usuariosRegistrados.hasOwnProperty(usuarioAModificar)) {
+                var nuevoNombre = prompt("Ingrese el nuevo nombre del usuario:");
+                usuariosRegistrados[nuevoNombre] = usuariosRegistrados[usuarioAModificar];
+                delete usuariosRegistrados[usuarioAModificar];
+                mostrarUsuarios();
+            } else {
+                alert("Lo sentimos el usuario no existe.");
+            }
+        }
+    }
+
+    function consultar() {
+        if (usuarioActual !== null) {
+            var usuarioAConsultar = prompt("Ingrese el usuario al que desea consultar:");
+            if (usuariosRegistrados.hasOwnProperty(usuarioAConsultar)) {
+                var correosUsuario = usuariosRegistrados[usuarioAConsultar].correos;
+                var correosHTML = "<h3>Correos Electrónicos de " + usuarioAConsultar + ":</h3><ul>";
+
+                for (var i = 0; i < correosUsuario.length; i++) {
+                    correosHTML += "<li>" + correosUsuario[i] + "</li>";
+                }
+
+                correosHTML += "</ul>";
+                document.getElementById('usuarios').innerHTML = correosHTML;
+            } else {
+                alert("Lo sentimos el usuario consultado no existe.");
+            }
+        }
+    }
+
+    function catalogo() {
+        if (usuarioActual !== null) {
+            var usuariosDiv = document.getElementById('usuarios');
+            var catalogoHTML = "<h3>Catálogo de Usuarios y Correos Electrónicos que residen en la galaxia:</h3><ul>";
+
+            for (var usuario in usuariosRegistrados) {
+                catalogoHTML += "<li>" + usuario + ": " + usuariosRegistrados[usuario].correos.join(', ') + "</li>";
+            }
+
+            catalogoHTML += "</ul>";
+            usuariosDiv.innerHTML = catalogoHTML;
+        }
+    }
+
+    function cerrarSesion() {
+        usuarioActual = null;
+        var submenu = document.getElementById('submenu');
+        var loginForm = document.getElementById('loginForm');
+        var usuariosDiv = document.getElementById('usuarios');
+        
+        loginForm.style.display = 'block';
+        submenu.style.display = 'none';
+        usuariosDiv.innerHTML = "";
+    }
+
+    function mostrarUsuarios() {
+        if (usuarioActual !== null) {
+            var usuariosDiv = document.getElementById('usuarios');
+            var usuariosHTML = "<h3>Usuarios Registrados:</h3><ul>";
+
+            for (var usuario in usuariosRegistrados) {
+                usuariosHTML += "<li>" + usuario + ": " + usuariosRegistrados[usuario].correos.join(', ') + "</li>";
+            }
+
+            usuariosHTML += "</ul>";
+            usuariosDiv.innerHTML = usuariosHTML;
+        }
+    }
+</script>
+
+</body>
+</html>
+
